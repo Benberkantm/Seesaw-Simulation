@@ -88,17 +88,23 @@ class SeesawSim {
         this.resetSound.play();
     }
 
+    // Converts object position on plank to screen coordinates
+    // dist: distance from pivot point on plank (positive: right, negative: left)
     getObjectPosition(dist) {
 
         let container_width = this.seesaw_screen.offsetWidth;
         let container_height = this.seesaw_screen.offsetHeight;
+        // Pivot point is at container center
         let px = container_width / 2;
         let py = container_height / 2;
 
+        // Convert plank angle to radians (for trigonometry)
         let rad = this.plank_angle * Math.PI / 180;
-
+        //i used ai to optimize this section before ai i used to make seperated varaibles for x and y in other functions.
+        // Calculating the object position using trigonometry
+        // Use cos and sin to find x, y coordinates based on plank angle
         let posX = px + dist * Math.cos(rad);
-        let posY = py + dist * Math.sin(rad) - 15;
+        let posY = py + dist * Math.sin(rad) - 25; // -25 is putting the object over the plank
         
         return { x: posX, y: posY };
 
@@ -109,20 +115,22 @@ class SeesawSim {
         const rect = this.seesaw_screen.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-
-        if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+        
+        //i had problem in this handler section a lot of times so i used ai in this section to fix it
+        if (x < 0 || x > rect.width || y < 0 || y > rect.height) { 
             return;
         }
 
+        //i know this section and i wrote it myself
         const pivotX = rect.width / 2;
         const pivotY = rect.height / 2;
         const clickX = x - pivotX;
         const clickY = y - pivotY;
 
-        const angleRad = (this.plank_angle * Math.PI) / 180;
-        const plankX = clickX * Math.cos(-angleRad) - clickY * Math.sin(-angleRad); 
+        const angleRad = (this.plank_angle * Math.PI) / 180; //turn angle to radians
+        const plankX = clickX * Math.cos(-angleRad) - clickY * Math.sin(-angleRad); //calculate the x position of the object
 
-        if (Math.abs(plankX) > this.plank_length / 2) {
+        if (Math.abs(plankX) > this.plank_length / 2) { //check if the object is out of the plank
             return;
         }
 
@@ -134,12 +142,13 @@ class SeesawSim {
 
     addObject(distanceFromPivot, weight) {
 
-        let size = 60 + weight * 2;
+        let size = 60 + weight * 2;//size of the object is (object_weight x 2 + 60)px
 
         let pos = this.getObjectPosition(distanceFromPivot);
         let x = pos.x;
         let y = pos.y;
 
+        //create the object element for the seesaw_screen
         let element = document.createElement('div');
         element.className = 'object';
         element.style.width = size + 'px';
@@ -168,7 +177,7 @@ class SeesawSim {
         let rightTorque = 0;
 
         this.objects.forEach(obj => {
-            let torque = obj.weight * obj.distanceFromPivot;
+            let torque = obj.weight * obj.distanceFromPivot;//calculation from the documentation
             
             if (obj.distanceFromPivot < 0) {
                 leftTorque += Math.abs(torque);
@@ -182,7 +191,7 @@ class SeesawSim {
     }
     calculatePlankAngle() {
         const { leftTorque, rightTorque } = this.calculateTorque();
-        this.plank_angle = Math.max(-this.max_angle, Math.min(this.max_angle, (rightTorque - leftTorque) / 10));
+        this.plank_angle = Math.max(-this.max_angle, Math.min(this.max_angle, (rightTorque - leftTorque) / 10));//calculation from the documentation
     }
 
     calculateWeights() {
