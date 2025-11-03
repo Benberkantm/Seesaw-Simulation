@@ -8,7 +8,14 @@ class SeesawSimulation {
         this.container = document.getElementById('seesawContainer');
         this.plank = document.getElementById('seesawPlank');
         this.nextWeight = this.generateNextWeight();
-        
+
+
+        this.angle = document.getElementById('angle');
+        this.rightWeight = document.getElementById('rightWeight');
+        this.leftWeight = document.getElementById('leftWeight');
+        this.nextWeightStat = document.getElementById('nextWeightStat');
+
+
         this.init();
     }
 
@@ -94,6 +101,7 @@ class SeesawSimulation {
             } else {
                 rightTorque += torque;
             }
+
         });
 
         return { leftTorque, rightTorque };
@@ -112,7 +120,14 @@ class SeesawSimulation {
 
             obj.element.style.left = (x - obj.size / 2) + 'px';
             obj.element.style.top = (y - obj.size / 2) + 'px';
+            
         });
+
+        this.nextWeightStat.textContent = this.nextWeight + ' kg';
+        this.angle.textContent = this.plankAngle.toFixed(1) + '°';
+        this.rightWeight.textContent = this.calculateTorque().rightTorque.toFixed(1) + ' kg';
+        this.leftWeight.textContent = this.calculateTorque().leftTorque.toFixed(1) + ' kg';
+
     }
 
     animate() {
