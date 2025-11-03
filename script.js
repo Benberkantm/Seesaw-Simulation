@@ -1,21 +1,20 @@
 class SeesawSimulation {
     constructor() {
-        this.halfPlankLength = 260;
-        this.maxPlankAngle = 30;
-        this.plankAngle = 0;
+        this.Plank_Length = 260;
+        this.max_Plank_Angle = 30;
+        this.plank_Angle = 0;
         this.objects = [];
         
-        this.container = document.getElementById('seesawContainer');
-        this.plank = document.getElementById('seesawPlank');
-        this.nextWeight = this.generateNextWeight();
+        this.seesaw_screen = document.getElementById('seesawContainer');
+        this.seesaw_plank = document.getElementById('seesawPlank');
+        this.next_Weight = this.generateNextWeight();
 
-        this.angle = document.getElementById('angle');
-        this.rightWeight = document.getElementById('rightWeight');
-        this.leftWeight = document.getElementById('leftWeight');
-        this.nextWeightStat = document.getElementById('nextWeightStat');
+        this.seesaw_angle = document.getElementById('angle');
+        this.right_side_weight = document.getElementById('rightWeight');
+        this.left_side_weight = document.getElementById('leftWeight');
+        this.next_weight_stat = document.getElementById('nextWeightStat');
 
-
-        
+        this.loadState();
         this.init();
     }
 
@@ -28,17 +27,40 @@ class SeesawSimulation {
         return Math.floor(Math.random() * 10) + 1;
     }
 
-    getObjectPosition(distanceFromPivot) {
-        const containerWidth = this.container.offsetWidth;
-        const containerHeight = this.container.offsetHeight;
-        const pivotX = containerWidth / 2;
-        const pivotY = containerHeight / 2;
-        const angleRad = (this.plankAngle * Math.PI) / 180;
+    saveState() {
+        let savedObjects = [];
+        for (let i = 0; i < this.objects.length; i++) {
+            savedObjects.push({
+                distanceFromPivot: this.objects[i].distanceFromPivot,
+                weight: this.objects[i].weight,
+                size: this.objects[i].size
+            });
+        }
+        localStorage.setItem('backup', JSON.stringify({objects: savedObjects}));
+    }
 
-        return {
-            x: pivotX + (distanceFromPivot * Math.cos(angleRad)),
-            y: pivotY + (distanceFromPivot * Math.sin(angleRad)) - 15
-        };
+    loadState() {
+        const savedData = localStorage.getItem('backup');
+        if (!savedData) return;
+        
+        const parsed = JSON.parse(savedData);
+            for (let i = 0; i < parsed.objects.length; i++) {
+                let obj = parsed.objects[i];
+                this.addObject(obj.distanceFromPivot, obj.weight);
+            }
+    }
+
+    getObjectPosition(dist) {
+        let cw = this.container.offsetWidth;
+        let ch = this.container.offsetHeight;
+        let px = cw / 2;
+        let py = ch / 2;
+        let rad = this.plankAngle * Math.PI / 180;
+
+        let posX = px + dist * Math.cos(rad);
+        let posY = py + dist * Math.sin(rad) - 15;
+        
+        return { x: posX, y: posY };
     }
 
     handleClick(e) {
@@ -87,6 +109,8 @@ class SeesawSimulation {
             size: size,
             element: element
         });
+        
+        this.saveState();
     }
 
     calculateTorque() {
