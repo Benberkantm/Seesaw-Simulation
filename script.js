@@ -21,6 +21,19 @@ class SeesawSimulation {
         return Math.floor(Math.random() * 10) + 1;
     }
 
+    getObjectPosition(distanceFromPivot) {
+        const containerWidth = this.container.offsetWidth;
+        const containerHeight = this.container.offsetHeight;
+        const pivotX = containerWidth / 2;
+        const pivotY = containerHeight / 2;
+        const angleRad = (this.plankAngle * Math.PI) / 180;
+
+        return {
+            x: pivotX + (distanceFromPivot * Math.cos(angleRad)),
+            y: pivotY + (distanceFromPivot * Math.sin(angleRad)) - 15
+        };
+    }
+
     handleClick(e) {
         const rect = this.container.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -50,14 +63,7 @@ class SeesawSimulation {
 
     addObject(distanceFromPivot, weight) {
         const size = 10 + weight * 4;
-        const angleRad = (this.plankAngle * Math.PI) / 180;
-        const containerWidth = this.container.offsetWidth;
-        const containerHeight = this.container.offsetHeight;
-        const pivotX = containerWidth / 2;
-        const pivotY = containerHeight / 2;
-
-        const x = pivotX + (distanceFromPivot * Math.cos(angleRad));
-        const y = pivotY + (distanceFromPivot * Math.sin(angleRad)) - 15;
+        const { x, y } = this.getObjectPosition(distanceFromPivot);
 
         const element = document.createElement('div');
         element.className = 'object';
@@ -101,15 +107,8 @@ class SeesawSimulation {
     updateVisuals() {
         this.plank.style.transform = `translateX(-50%) translateY(-50%) rotate(${this.plankAngle}deg)`;
 
-        const containerWidth = this.container.offsetWidth;
-        const containerHeight = this.container.offsetHeight;
-        const pivotX = containerWidth / 2;
-        const pivotY = containerHeight / 2;
-        const angleRad = (this.plankAngle * Math.PI) / 180;
-
         this.objects.forEach(obj => {
-            const x = pivotX + (obj.distanceFromPivot * Math.cos(angleRad));
-            const y = pivotY + (obj.distanceFromPivot * Math.sin(angleRad)) - 15;
+            const { x, y } = this.getObjectPosition(obj.distanceFromPivot);
 
             obj.element.style.left = (x - obj.size / 2) + 'px';
             obj.element.style.top = (y - obj.size / 2) + 'px';
