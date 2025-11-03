@@ -147,6 +147,7 @@ class SeesawSim {
         element.style.left = (x - size / 2) + 'px';
         element.style.top = (y - size / 2) + 'px';
         element.textContent = weight + 'kg';
+        element.style.transform = `rotate(${this.plank_angle}deg)`;
         this.seesaw_screen.appendChild(element);
 
         this.objects.push({
@@ -208,6 +209,7 @@ class SeesawSim {
 
             obj.element.style.left = (x - obj.size / 2) + 'px';
             obj.element.style.top = (y - obj.size / 2) + 'px';
+            obj.element.style.transform = `rotate(${this.plank_angle}deg)`;
             
         });
 
