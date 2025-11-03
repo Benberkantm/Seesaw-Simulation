@@ -121,3 +121,10 @@ body {
 #resetButton:active {
     background-color: #3d8b40;
 }
+
+.logo {
+    display: block;
+    margin-bottom: 40px;
+    max-width: 500px;
+    height: auto;
+}

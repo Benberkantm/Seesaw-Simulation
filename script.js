@@ -1,18 +1,15 @@
-//
 // Seesaw Simulation 
+// made by Süleyman Berkant Melli
 //
 class SeesawSim {
     
-
     constructor() {
 
-
         this.plank_length = 520;
-        this.max_angle = 30;
+        this.max_plank_angle = 30;
         this.plank_angle = 0;
         this.objects = [];
         
-
         this.seesaw_screen = document.getElementById('seesawContainer');
         this.seesaw_plank = document.getElementById('seesawPlank');
         this.next_weight = this.generateNextWeight();
@@ -34,8 +31,6 @@ class SeesawSim {
     }
 
 
-
-
     init() {
         this.seesaw_screen.addEventListener('click', (e) => this.handleClick(e));
         this.resetButton.addEventListener('click', () => this.reset());
@@ -43,7 +38,6 @@ class SeesawSim {
     }
 
     
-
     generateNextWeight() {
         return Math.floor(Math.random() * 10) + 1;
     }
@@ -53,7 +47,7 @@ class SeesawSim {
         for (let i = 0; i < this.objects.length; i++) {
             object_states.push({
                 distanceFromPivot: this.objects[i].distanceFromPivot,
-                weight: this.objects[i].weight,
+                obj_weight: this.objects[i].obj_weight,
                 size: this.objects[i].size
             });
         }
@@ -67,14 +61,17 @@ class SeesawSim {
         const parsed = JSON.parse(savedData);
             for (let i = 0; i < parsed.objects.length; i++) {
                 let obj = parsed.objects[i];
-                this.addObject(obj.distanceFromPivot, obj.weight);
+                this.addObject(obj.distanceFromPivot, obj.obj_weight);
             }
     }
 
     reset() {
-        for (let i = 0; i < this.objects.length; i++) {
-            this.objects[i].element.remove();
-        }
+        this.objects.forEach(obj => {
+            obj.element.remove();
+        });
+//        for (let i = 0; i < this.objects.length; i++) {
+//            this.objects[i].element.remove();
+//        }
         this.objects = [];
         this.plank_angle = 0;
         this.seesaw_plank.style.transform = `translateX(-50%) translateY(-50%) rotate(0deg)`;
@@ -88,23 +85,21 @@ class SeesawSim {
         this.resetSound.play();
     }
 
-    // Converts object position on plank to screen coordinates
-    // dist: distance from pivot point on plank (positive: right, negative: left)
-    getObjectPosition(dist) {
+    
+    calculateObjectScreenPosition(distanceFromPivot) {
 
-        let container_width = this.seesaw_screen.offsetWidth;
-        let container_height = this.seesaw_screen.offsetHeight;
-        // Pivot point is at container center
-        let px = container_width / 2;
-        let py = container_height / 2;
+        let seesaw_screen_width = this.seesaw_screen.offsetWidth;
+        let seesaw_screen_height = this.seesaw_screen.offsetHeight;
 
-        // Convert plank angle to radians (for trigonometry)
-        let rad = this.plank_angle * Math.PI / 180;
+        let pivot_x = seesaw_screen_width / 2;
+        let pivot_y = seesaw_screen_height / 2;
+        const object_plank_offset = 30;
+
+        let plank_angle_rad = this.plank_angle * Math.PI / 180;
+
         //i used ai to optimize this section before ai i used to make seperated varaibles for x and y in other functions.
-        // Calculating the object position using trigonometry
-        // Use cos and sin to find x, y coordinates based on plank angle
-        let posX = px + dist * Math.cos(rad);
-        let posY = py + dist * Math.sin(rad) - 25; // -25 is putting the object over the plank
+        let posX = pivot_x + distanceFromPivot * Math.cos(plank_angle_rad);
+        let posY = pivot_y + distanceFromPivot * Math.sin(plank_angle_rad) - object_plank_offset;
         
         return { x: posX, y: posY };
 
@@ -116,21 +111,20 @@ class SeesawSim {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
-        //i had problem in this handler section a lot of times so i used ai in this section to fix it
+        //i had problems in this handler section a lot of times so i used ai in this section to fix it
         if (x < 0 || x > rect.width || y < 0 || y > rect.height) { 
             return;
         }
 
-        //i know this section and i wrote it myself
         const pivotX = rect.width / 2;
         const pivotY = rect.height / 2;
         const clickX = x - pivotX;
         const clickY = y - pivotY;
 
-        const angleRad = (this.plank_angle * Math.PI) / 180; //turn angle to radians
-        const plankX = clickX * Math.cos(-angleRad) - clickY * Math.sin(-angleRad); //calculate the x position of the object
+        const angleRad = (this.plank_angle * Math.PI) / 180; 
+        const plankX = clickX * Math.cos(-angleRad) - clickY * Math.sin(-angleRad);
 
-        if (Math.abs(plankX) > this.plank_length / 2) { //check if the object is out of the plank
+        if (Math.abs(plankX) > this.plank_length / 2) { 
             return;
         }
 
@@ -142,27 +136,26 @@ class SeesawSim {
 
     addObject(distanceFromPivot, weight) {
 
-        let size = 60 + weight * 2;//size of the object is (object_weight x 2 + 60)px
+        let object_size = 60 + weight * 2;
 
-        let pos = this.getObjectPosition(distanceFromPivot);
+        let pos = this.calculateObjectScreenPosition(distanceFromPivot);
         let x = pos.x;
         let y = pos.y;
 
-        //create the object element for the seesaw_screen
         let element = document.createElement('div');
         element.className = 'object';
-        element.style.width = size + 'px';
-        element.style.height = size + 'px';
-        element.style.left = (x - size / 2) + 'px';
-        element.style.top = (y - size / 2) + 'px';
+        element.style.width = object_size + 'px';
+        element.style.height = object_size + 'px';
+        element.style.left = (x - object_size / 2) + 'px';
+        element.style.top = (y - object_size / 2) + 'px';
         element.textContent = weight + 'kg';
         element.style.transform = `rotate(${this.plank_angle}deg)`;
         this.seesaw_screen.appendChild(element);
 
         this.objects.push({
             distanceFromPivot: distanceFromPivot,
-            weight: weight,
-            size: size,
+            obj_weight: weight,
+            size: object_size,
             element: element
         });
         
@@ -177,7 +170,7 @@ class SeesawSim {
         let rightTorque = 0;
 
         this.objects.forEach(obj => {
-            let torque = obj.weight * obj.distanceFromPivot;//calculation from the documentation
+            let torque = obj.obj_weight * obj.distanceFromPivot;
             
             if (obj.distanceFromPivot < 0) {
                 leftTorque += Math.abs(torque);
@@ -191,7 +184,7 @@ class SeesawSim {
     }
     calculatePlankAngle() {
         const { leftTorque, rightTorque } = this.calculateTorque();
-        this.plank_angle = Math.max(-this.max_angle, Math.min(this.max_angle, (rightTorque - leftTorque) / 10));//calculation from the documentation
+        this.plank_angle = Math.max(-this.max_plank_angle, Math.min(this.max_plank_angle, (rightTorque - leftTorque) / 10));
     }
 
     calculateWeights() {
@@ -200,9 +193,9 @@ class SeesawSim {
 
         this.objects.forEach(obj => {
             if (obj.distanceFromPivot < 0) {
-                leftWeight += obj.weight;
+                leftWeight += obj.obj_weight;
             } else {
-                rightWeight += obj.weight;
+                rightWeight += obj.obj_weight;
             }
         });
 
@@ -214,7 +207,7 @@ class SeesawSim {
         this.seesaw_plank.style.transform = `translateX(-50%) translateY(-50%) rotate(${this.plank_angle}deg)`;
 
         this.objects.forEach(obj => {
-            const { x, y } = this.getObjectPosition(obj.distanceFromPivot);
+            const { x, y } = this.calculateObjectScreenPosition(obj.distanceFromPivot);
 
             obj.element.style.left = (x - obj.size / 2) + 'px';
             obj.element.style.top = (y - obj.size / 2) + 'px';
