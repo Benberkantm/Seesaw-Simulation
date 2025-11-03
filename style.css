@@ -1,0 +1,63 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.seesaw-container {
+    width: 800px;
+    height: 400px;
+    position: relative;
+    background: white;
+}
+
+.seesaw-plank {
+    position: absolute;
+    width: 600px;
+    height: 30px;
+    background-image: url('assets/images/plank.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    left: 50%;
+    top: 50%;
+    transform-origin: center center;
+
+}
+
+.pivot {
+    position: absolute;
+    width: 27px;
+    height: 27px;
+    background-image: url('assets/images/Red_nail.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: 10;
+}
+
+.object {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    border: 1px solid #333;
+}
