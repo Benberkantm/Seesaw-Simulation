@@ -9,13 +9,13 @@ class SeesawSimulation {
         this.plank = document.getElementById('seesawPlank');
         this.nextWeight = this.generateNextWeight();
 
-
         this.angle = document.getElementById('angle');
         this.rightWeight = document.getElementById('rightWeight');
         this.leftWeight = document.getElementById('leftWeight');
         this.nextWeightStat = document.getElementById('nextWeightStat');
 
 
+        
         this.init();
     }
 
@@ -107,6 +107,21 @@ class SeesawSimulation {
         return { leftTorque, rightTorque };
     }
 
+    calculateWeights() {
+        let leftWeight = 0;
+        let rightWeight = 0;
+
+        this.objects.forEach(obj => {
+            if (obj.distanceFromPivot < 0) {
+                leftWeight += obj.weight;
+            } else {
+                rightWeight += obj.weight;
+            }
+        });
+
+        return { leftWeight, rightWeight };
+    }
+
     updatePhysics() {
         const { leftTorque, rightTorque } = this.calculateTorque();
         this.plankAngle = Math.max(-this.maxPlankAngle, Math.min(this.maxPlankAngle, (rightTorque - leftTorque) / 10));
@@ -123,16 +138,21 @@ class SeesawSimulation {
             
         });
 
+    }
+
+    updateStats() {
+        const { leftWeight, rightWeight } = this.calculateWeights();
+        
         this.nextWeightStat.textContent = this.nextWeight + ' kg';
         this.angle.textContent = this.plankAngle.toFixed(1) + '°';
-        this.rightWeight.textContent = this.calculateTorque().rightTorque.toFixed(1) + ' kg';
-        this.leftWeight.textContent = this.calculateTorque().leftTorque.toFixed(1) + ' kg';
-
+        this.rightWeight.textContent = rightWeight + ' kg';
+        this.leftWeight.textContent = leftWeight + ' kg';
     }
 
     animate() {
         this.updatePhysics();
         this.updateVisuals();
+        this.updateStats();
         requestAnimationFrame(() => this.animate());
     }
 }
