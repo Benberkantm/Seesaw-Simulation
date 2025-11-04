@@ -8,18 +8,18 @@ class SeesawSim {
         this.plank_length = 520;
         this.max_plank_angle = 30;
         this.plank_angle = 0;
+        this.plank_thickness = 30;
+        this.plank_click_tolerance = 20;
         this.objects = [];
         
         this.seesaw_screen = document.getElementById('seesawContainer');
         this.seesaw_plank = document.getElementById('seesawPlank');
         this.next_weight = this.generateNextWeight();
 
-
         this.seesaw_angle = document.getElementById('angle');
         this.right_side_weight = document.getElementById('rightWeight');
         this.left_side_weight = document.getElementById('leftWeight');
         this.next_weight_stat = document.getElementById('nextWeightStat');
-
 
         this.resetButton = document.getElementById('resetButton');
 
@@ -30,62 +30,16 @@ class SeesawSim {
         this.init();
     }
 
-
     init() {
         this.seesaw_screen.addEventListener('click', (e) => this.handleClick(e));
         this.resetButton.addEventListener('click', () => this.reset());
         this.animate();
     }
 
-    
     generateNextWeight() {
         return Math.floor(Math.random() * 10) + 1;
     }
 
-    backupstate() {
-        let object_states = [];
-        for (let i = 0; i < this.objects.length; i++) {
-            object_states.push({
-                distanceFromPivot: this.objects[i].distanceFromPivot,
-                obj_weight: this.objects[i].obj_weight,
-                size: this.objects[i].size
-            });
-        }
-        localStorage.setItem('backup', JSON.stringify({objects: object_states}));
-    }
-
-    loadState() {
-        const savedData = localStorage.getItem('backup');
-        if (!savedData) return;
-        
-        const parsed = JSON.parse(savedData);
-            for (let i = 0; i < parsed.objects.length; i++) {
-                let obj = parsed.objects[i];
-                this.addObject(obj.distanceFromPivot, obj.obj_weight);
-            }
-    }
-
-    reset() {
-        this.objects.forEach(obj => {
-            obj.element.remove();
-        });
-//        for (let i = 0; i < this.objects.length; i++) {
-//            this.objects[i].element.remove();
-//        }
-        this.objects = [];
-        this.plank_angle = 0;
-        this.seesaw_plank.style.transform = `translateX(-50%) translateY(-50%) rotate(0deg)`;
-        this.seesaw_angle.textContent = '0°';
-        this.right_side_weight.textContent = '0 kg';
-        this.left_side_weight.textContent = '0 kg';
-        this.next_weight_stat.textContent = '0 kg';
-        localStorage.removeItem('backup');
-        
-        this.resetSound.currentTime = 0;
-        this.resetSound.play();
-    }
-
-    
     calculateObjectScreenPosition(distanceFromPivot) {
 
         let seesaw_screen_width = this.seesaw_screen.offsetWidth;
@@ -123,8 +77,13 @@ class SeesawSim {
 
         const angleRad = (this.plank_angle * Math.PI) / 180; 
         const plankX = clickX * Math.cos(-angleRad) - clickY * Math.sin(-angleRad);
+        const plankY = clickX * Math.sin(-angleRad) + clickY * Math.cos(-angleRad);
 
         if (Math.abs(plankX) > this.plank_length / 2) { 
+            return;
+        }
+
+        if (Math.abs(plankY) > this.plank_click_tolerance) {
             return;
         }
 
@@ -225,6 +184,47 @@ class SeesawSim {
         this.seesaw_angle.textContent = this.plank_angle.toFixed(1) + '°';
         this.right_side_weight.textContent = rightWeight + ' kg';
         this.left_side_weight.textContent = leftWeight + ' kg';
+    }
+
+    backupstate() {
+        let object_states = [];
+        for (let i = 0; i < this.objects.length; i++) {
+            object_states.push({
+                distanceFromPivot: this.objects[i].distanceFromPivot,
+                obj_weight: this.objects[i].obj_weight,
+                size: this.objects[i].size
+            });
+        }
+        localStorage.setItem('backup', JSON.stringify({objects: object_states}));
+    }
+
+    loadState() {
+        const savedData = localStorage.getItem('backup');
+        if (!savedData) return;
+        
+        const parsed = JSON.parse(savedData);
+            for (let i = 0; i < parsed.objects.length; i++) {
+                let obj = parsed.objects[i];
+                this.addObject(obj.distanceFromPivot, obj.obj_weight);
+            }
+    }
+
+    reset() {
+        this.objects.forEach(obj => {
+            obj.element.remove();
+        });
+
+        this.objects = [];
+        this.plank_angle = 0;
+        this.seesaw_plank.style.transform = `translateX(-50%) translateY(-50%) rotate(0deg)`;
+        this.seesaw_angle.textContent = '0°';
+        this.right_side_weight.textContent = '0 kg';
+        this.left_side_weight.textContent = '0 kg';
+        this.next_weight_stat.textContent = '0 kg';
+        localStorage.removeItem('backup');
+        
+        this.resetSound.currentTime = 0;
+        this.resetSound.play();
     }
 
     animate() {
