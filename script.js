@@ -52,6 +52,7 @@ class SeesawSim {
 
         let plank_angle_rad = this.plank_angle * Math.PI / 180;
 
+        //i used ai to optimize this section before ai i used to make seperated varaibles for x and y in other functions.
         let posX = pivot_x + distanceFromPivot * Math.cos(plank_angle_rad);
         let posY = pivot_y + distanceFromPivot * Math.sin(plank_angle_rad) - object_plank_offset;
         
@@ -65,6 +66,7 @@ class SeesawSim {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
+        //i had problems in this handler section a lot of times so i used ai in this section to fix it
         if (x < 0 || x > rect.width || y < 0 || y > rect.height) { 
             return;
         }
