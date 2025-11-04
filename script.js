@@ -5,7 +5,7 @@ class SeesawSim {
     
     constructor() {
 
-        this.plank_length = 520;
+        this.plank_length = 510;
         this.max_plank_angle = 30;
         this.plank_angle = 0;
         this.plank_thickness = 30;
@@ -22,6 +22,7 @@ class SeesawSim {
         this.next_weight_stat = document.getElementById('nextWeightStat');
 
         this.resetButton = document.getElementById('resetButton');
+        this.log = document.getElementById('log');
 
         this.creationSound = new Audio('assets/audio/creation_effect.mp3');
         this.resetSound = new Audio('assets/audio/reset.mp3');
@@ -121,6 +122,7 @@ class SeesawSim {
         this.creationSound.currentTime = 0;
         this.creationSound.play();
         
+        this.addObjectLogEntry(weight, Math.round(distanceFromPivot));
         this.backupstate();
     }
 
@@ -221,10 +223,18 @@ class SeesawSim {
         this.right_side_weight.textContent = '0 kg';
         this.left_side_weight.textContent = '0 kg';
         this.next_weight_stat.textContent = '0 kg';
+        this.log.innerHTML = '';
         localStorage.removeItem('backup');
         
         this.resetSound.currentTime = 0;
         this.resetSound.play();
+    }
+
+    addObjectLogEntry(weight, distanceFromPivot) {
+        const log = document.createElement('div');
+        log.className = 'log-element';
+        log.textContent = `Anvil is ${weight}kg and distance from pivot is ${Math.abs(distanceFromPivot)}px`;
+        this.log.appendChild(log);
     }
 
     animate() {
