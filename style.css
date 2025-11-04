@@ -10,7 +10,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
@@ -23,6 +24,8 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0;
     margin-bottom: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .stat {
@@ -49,7 +52,9 @@ body {
 
 .seesaw-container {
     width: 800px;
+    max-width: 95vw;
     height: 400px;
+    max-height: 50vh;
     position: relative;
     background: white;
     border-radius: 10px;
@@ -134,6 +139,7 @@ body {
 .log {
     margin-top: 20px;
     width: 600px;
+    max-width: 95vw;
     max-height: 150px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.95);
